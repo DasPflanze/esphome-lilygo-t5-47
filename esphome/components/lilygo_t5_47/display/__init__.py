@@ -53,3 +53,7 @@ async def to_code(config):
 
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
+    
+    # Fix for ESP-IDF 5.x where rom/miniz.h has been moved to miniz.h
+    # This creates a compatibility layer for the old header path
+    cg.add_build_flag('-Drom/miniz.h="miniz.h"')
