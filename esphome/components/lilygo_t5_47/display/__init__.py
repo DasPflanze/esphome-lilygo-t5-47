@@ -52,7 +52,9 @@ async def to_code(config):
     cg.add_library("https://github.com/daernsinstantfortress/platformio-epdiy-monochrome.git", None)
     
     # Add a build hook to patch the rom/miniz.h includes after library download
-    cg.add_platformio_option("extra_scripts", ["post:patch_epdiy.py"])
+    import os
+    script_path = os.path.join(os.path.dirname(__file__), "patch_epdiy.py")
+    cg.add_platformio_option("extra_scripts", [f"post:{script_path}"])
 
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
