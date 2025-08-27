@@ -55,18 +55,25 @@ async def to_code(config):
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
     
     # Fix for ESP-IDF 5.x where rom/miniz.h has been moved to miniz.h
-    # Create a wrapper header for compatibility
-    import os
-    build_path = config.get("build_path", "build")
-    rom_dir = os.path.join(build_path, "rom")
-    if not os.path.exists(rom_dir):
-        os.makedirs(rom_dir, exist_ok=True)
+    # Create a compatibility wrapper using a different approach
+    cg.add_library_finder("esp32", None)
     
-    # Create rom/miniz.h wrapper
-    wrapper_content = '#include "miniz.h"\n'
+    # Add build-time include path manipulation
+    cg.add_build_flag("-Dmain=app_main")  # Dummy flag to test
+    
+    # Use platformio build script approach
+    import tempfile
+    import os
+    
+    # Create a temporary rom directory structure in the component
+    component_dir = os.path.dirname(__file__)
+    rom_dir = os.path.join(component_dir, "rom")
+    os.makedirs(rom_dir, exist_ok=True)
+    
+    # Create the wrapper header
     wrapper_path = os.path.join(rom_dir, "miniz.h")
     with open(wrapper_path, "w") as f:
-        f.write(wrapper_content)
+        f.write('#include "miniz.h"\n')
     
-    # Add the build directory to include path
-    cg.add_build_flag(f"-I{build_path}")
+    # Add the component directory to includes
+    cg.add_build_flag(f"-I{component_dir}")
