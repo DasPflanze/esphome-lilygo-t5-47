@@ -50,30 +50,9 @@ async def to_code(config):
         cg.add(var.set_writer(lambda_))
 
     cg.add_library("https://github.com/daernsinstantfortress/platformio-epdiy-monochrome.git", None)
+    
+    # Add a build hook to patch the rom/miniz.h includes after library download
+    cg.add_platformio_option("extra_scripts", ["post:patch_epdiy.py"])
 
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
-    
-    # Fix for ESP-IDF 5.x where rom/miniz.h has been moved to miniz.h
-    # Create a compatibility wrapper using a different approach
-    cg.add_library_finder("esp32", None)
-    
-    # Add build-time include path manipulation
-    cg.add_build_flag("-Dmain=app_main")  # Dummy flag to test
-    
-    # Use platformio build script approach
-    import tempfile
-    import os
-    
-    # Create a temporary rom directory structure in the component
-    component_dir = os.path.dirname(__file__)
-    rom_dir = os.path.join(component_dir, "rom")
-    os.makedirs(rom_dir, exist_ok=True)
-    
-    # Create the wrapper header
-    wrapper_path = os.path.join(rom_dir, "miniz.h")
-    with open(wrapper_path, "w") as f:
-        f.write('#include "miniz.h"\n')
-    
-    # Add the component directory to includes
-    cg.add_build_flag(f"-I{component_dir}")
