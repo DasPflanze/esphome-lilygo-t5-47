@@ -53,3 +53,14 @@ async def to_code(config):
 
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
+    
+    # Fix for ESP-IDF 5.x where rom/miniz.h has been moved to miniz.h
+    # Use a proper macro definition with whitespace after the macro name
+    cg.add_build_flag('-D"rom_miniz_h_include=miniz.h"')
+    
+    # Add build flags to handle the header redirect properly
+    cg.add_build_flag("-include")
+    cg.add_build_flag("miniz.h")
+    
+    # Alternative approach: use sed-like replacement via build flags
+    cg.add_build_flag('-DMINIZ_HEADER_REDIRECT=1')
