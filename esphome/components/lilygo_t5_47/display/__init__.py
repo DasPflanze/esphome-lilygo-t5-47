@@ -55,12 +55,18 @@ async def to_code(config):
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
     
     # Fix for ESP-IDF 5.x where rom/miniz.h has been moved to miniz.h
-    # Use a proper macro definition with whitespace after the macro name
-    cg.add_build_flag('-D"rom_miniz_h_include=miniz.h"')
+    # Create a wrapper header for compatibility
+    import os
+    build_path = config.get("build_path", "build")
+    rom_dir = os.path.join(build_path, "rom")
+    if not os.path.exists(rom_dir):
+        os.makedirs(rom_dir, exist_ok=True)
     
-    # Add build flags to handle the header redirect properly
-    cg.add_build_flag("-include")
-    cg.add_build_flag("miniz.h")
+    # Create rom/miniz.h wrapper
+    wrapper_content = '#include "miniz.h"\n'
+    wrapper_path = os.path.join(rom_dir, "miniz.h")
+    with open(wrapper_path, "w") as f:
+        f.write(wrapper_content)
     
-    # Alternative approach: use sed-like replacement via build flags
-    cg.add_build_flag('-DMINIZ_HEADER_REDIRECT=1')
+    # Add the build directory to include path
+    cg.add_build_flag(f"-I{build_path}")
