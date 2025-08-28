@@ -45,10 +45,18 @@ def patch_epdiy_files():
                         new_content = new_content.replace('#include <rom/miniz.h>', '#include <miniz.h>')
                         needs_patch = True
                     
-                    # Fix I2C driver conflicts - replace new driver calls with legacy ones
-                    if 'i2c_new_master_bus' in content or 'i2c_master_bus_config_t' in content:
-                        new_content = new_content.replace('i2c_new_master_bus', 'i2c_driver_install')
-                        new_content = new_content.replace('i2c_master_bus_config_t', 'i2c_config_t')
+                    # Fix I2C driver conflicts - replace old driver includes with new ones
+                    if '#include "driver/i2c.h"' in content:
+                        # Replace old I2C driver include with new one
+                        new_content = new_content.replace('#include "driver/i2c.h"', '#include "driver/i2c_master.h"')
+                        needs_patch = True
+                    
+                    # Also check for old I2C function calls and update them
+                    if 'i2c_driver_install' in content or 'i2c_config_t' in content:
+                        # Replace old I2C API calls with new ones
+                        new_content = new_content.replace('i2c_driver_install', 'i2c_new_master_bus')
+                        new_content = new_content.replace('i2c_config_t', 'i2c_master_bus_config_t')
+                        new_content = new_content.replace('i2c_master_start', 'i2c_master_bus_reset')
                         needs_patch = True
                     
                     if needs_patch:

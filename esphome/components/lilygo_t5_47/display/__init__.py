@@ -59,7 +59,4 @@ async def to_code(config):
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
     
-    # Fix I2C driver conflict in ESP-IDF 5.x
-    # Force use of legacy I2C driver for compatibility with epdiy
-    cg.add_build_flag("-DCONFIG_I2C_ENABLE_HARDWARE_CRC=n")
-    cg.add_build_flag("-DESP_IDF_VERSION_MAJOR=4")
+    # I2C driver compatibility will be handled by the patch script
