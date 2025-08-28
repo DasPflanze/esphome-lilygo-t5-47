@@ -59,4 +59,6 @@ async def to_code(config):
     cg.add_build_flag("-DCONFIG_EPD_DISPLAY_TYPE_ED047TC1")
     cg.add_build_flag("-DCONFIG_EPD_BOARD_REVISION_LILYGO_T5_47")
     
-    # I2C driver compatibility will be handled by the patch script
+    # Force legacy I2C driver to avoid conflicts
+    cg.add_build_flag("-DCONFIG_ESP_IDF_LEGACY_I2C_DRIVER=y")
+    cg.add_build_flag("-DCONFIG_I2C_LEGACY_DRIVER=y")
